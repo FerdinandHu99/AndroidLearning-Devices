@@ -1,0 +1,6 @@
+java_import {
+    name: "helloJar",
+    jars: ["helloJar.jar"],
+    product_specific: true,
+    installable: true
+}

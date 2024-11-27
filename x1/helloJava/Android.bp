@@ -1,0 +1,6 @@
+java_library {
+    name: "helloJava", 
+    srcs: ["**/*.java"], 
+    product_specific: true, 
+    installable: true
+}

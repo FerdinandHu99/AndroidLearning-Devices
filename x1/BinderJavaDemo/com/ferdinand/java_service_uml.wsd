@@ -1,0 +1,201 @@
+@startuml
+interface IHelloService {
+    + void sayhello()
+    + int sayhello_to(String name)
+}
+
+class Default {
+    + void sayhello()
+    + int sayhello_to(String name)
+    + IBinder asBinder()
+}
+IHelloService <|.. Default : implements
+
+abstract class Stub {
+    + Stub()
+    + IBinder asBinder()
+    + boolean onTransact(int code, Parcel data, Parcel reply, int flags)
+    + static IHelloService asInterface(IBinder obj)
+    + static boolean setDefaultImpl(IHelloService impl)
+    + static IHelloService getDefaultImpl()
+    - static final String DESCRIPTOR
+    - static final int TRANSACTION_sayhello
+    - static final int TRANSACTION_sayhello_to
+}
+IHelloService <|.. Stub : implements
+Stub --> Binder : extends
+
+class Proxy {
+    + Proxy(IBinder remote)
+    + IBinder asBinder()
+    + void sayhello()
+    + int sayhello_to(String name)
+    + String getInterfaceDescriptor()
+    - IBinder mRemote
+    - static IHelloService sDefaultImpl
+}
+Stub *-- Proxy : contains
+IHelloService <|.. Proxy : implements
+
+class HelloService {
+    - static final String TAG
+    - int cnt1
+    - int cnt2
+    + void sayhello()
+    + int sayhello_to(String name)
+}
+Stub <|-- HelloService : extends
+
+class Binder {
+    - FIND_POTENTIAL_LEAKS : boolean
+    - CHECK_PARCEL_SIZE : boolean
+    - TAG : String
+    - UNSET_WORKSOURCE : int
+    - sDumpDisabled : String
+    - sTransactionTracker : TransactionTracker
+    - sObserver : BinderInternal.Observer
+    - NATIVE_ALLOCATION_SIZE : int
+    - mObject : long
+    - mOwner : IInterface
+    - mDescriptor : String
+
+    + getNativeFinalizer() : long <<native>>
+    + getNativeBBinderHolder() : long <<native>>
+    + getFinalizer() : long <<native>>
+
+    + enableTracing() : void
+    + disableTracing() : void
+    + isTracingEnabled() : boolean
+    + getTransactionTracker() : TransactionTracker
+    + setObserver(observer : BinderInternal.Observer) : void
+    + setWarnOnBlocking(warnOnBlocking : boolean) : void
+    + allowBlocking(binder : IBinder) : IBinder
+    + defaultBlocking(binder : IBinder) : IBinder
+    + copyAllowBlocking(fromBinder : IBinder, toBinder : IBinder) : void
+    + getCallingPid() : int <<native>>
+    + getCallingUid() : int <<native>>
+    + isHandlingTransaction() : boolean <<native>>
+    + getCallingUidOrThrow() : int
+    + getCallingUserHandle() : UserHandle
+    + clearCallingIdentity() : long <<native>>
+    + restoreCallingIdentity(token : long) : void <<native>>
+    + withCleanCallingIdentity(action : ThrowingRunnable) : void
+    + withCleanCallingIdentity(action : ThrowingSupplier) : T
+    + setThreadStrictModePolicy(policyMask : int) : void <<native>>
+    + getThreadStrictModePolicy() : int <<native>>
+    + setCallingWorkSourceUid(workSource : int) : long <<native>>
+    + getCallingWorkSourceUid() : int <<native>>
+    + clearCallingWorkSource() : long <<native>>
+    + restoreCallingWorkSource(token : long) : void <<native>>
+    + flushPendingCommands() : void <<native>>
+    + joinThreadPool() : void
+    + isProxy(iface : IInterface) : boolean
+    + blockUntilThreadAvailable() : void <<native>>
+    + Binder(descriptor : String)
+    + attachInterface(owner : IInterface, descriptor : String) : void
+    + getInterfaceDescriptor() : String
+    + pingBinder() : boolean
+    + isBinderAlive() : boolean
+    + queryLocalInterface(descriptor : String) : IInterface
+    + setDumpDisabled(msg : String) : void
+    + dump(fd : FileDescriptor, args : String[]) : void
+    + doDump(fd : FileDescriptor, pw : PrintWriter, args : String[]) : void
+    + dumpAsync(fd : FileDescriptor, args : String[]) : void
+    + dump(fd : FileDescriptor, fout : PrintWriter, args : String[]) : void
+    + shellCommand(in : FileDescriptor, out : FileDescriptor, err : FileDescriptor, args : String[], callback : ShellCallback, resultReceiver : ResultReceiver) : void
+    + onShellCommand(in : FileDescriptor, out : FileDescriptor, err : FileDescriptor, args : String[], callback : ShellCallback, resultReceiver : ResultReceiver) : void
+    + transact(code : int, data : Parcel, reply : Parcel, flags : int) : boolean
+    + linkToDeath(recipient : DeathRecipient, flags : int) : void
+    + unlinkToDeath(recipient : DeathRecipient, flags : int) : boolean
+}
+
+
+class BinderInternal {
+    - TAG : String
+    - sGcWatcher : WeakReference<GcWatcher>
+    - sGcWatchers : ArrayList<Runnable>
+    - sTmpWatchers : Runnable[]
+    - sLastGcTime : long
+    - sBinderProxyLimitListenerDelegate : BinderProxyLimitListenerDelegate
+    + addGcWatcher(watcher : Runnable) : void
+    + getLastGcTime() : long
+    + joinThreadPool() : void <<native>>
+    + getContextObject() : IBinder <<native>>
+    + disableBackgroundScheduling(disable : boolean) : void <<native>>
+    + setMaxThreads(numThreads : int) : void <<native>>
+    - handleGc() : void <<native>>
+    + forceGc(reason : String) : void
+    + forceBinderGc() : void
+    + nSetBinderProxyCountEnabled(enabled : boolean) : void <<native>>
+    + nGetBinderProxyPerUidCounts() : SparseIntArray <<native>>
+    + nGetBinderProxyCount(uid : int) : int <<native>>
+    + nSetBinderProxyCountWatermarks(high : int, low : int) : void <<native>>
+    + setBinderProxyCountCallback(listener : BinderProxyLimitListener, handler : Handler) : void
+    + clearBinderProxyCountCallback() : void
+}
+
+class GcWatcher {
+    # finalize() : void
+}
+
+class CallSession {
+    + binderClass : Class<? extends Binder>
+    + transactionCode : int
+    - cpuTimeStarted : long
+    - timeStarted : long
+    - exceptionThrown : boolean
+}
+
+interface WorkSourceProvider {
+    + resolveWorkSourceUid(untrustedWorkSourceUid : int) : int
+}
+
+interface Observer {
+    + callStarted(binder : Binder, code : int, workSourceUid : int) : CallSession
+    + callEnded(s : CallSession, parcelRequestSize : int, parcelReplySize : int, workSourceUid : int) : void
+    + callThrewException(s : CallSession, exception : Exception) : void
+}
+
+interface BinderProxyLimitListener {
+    + onLimitReached(uid : int) : void
+}
+
+class BinderProxyLimitListenerDelegate {
+    - mBinderProxyLimitListener : BinderProxyLimitListener
+    - mHandler : Handler
+    + setListener(listener : BinderProxyLimitListener, handler : Handler) : void
+    + notifyClient(uid : int) : void
+}
+
+BinderInternal "1" --> "1" GcWatcher
+BinderInternal "1" --> "1" BinderProxyLimitListenerDelegate
+Observer ..> CallSession
+BinderProxyLimitListenerDelegate --> BinderProxyLimitListener
+BinderProxyLimitListenerDelegate --> Handler
+BinderInternal --> WorkSourceProvider
+BinderInternal --> Observer
+
+class BinderProxy implements IBinder {
+    -NATIVE_ALLOCATION_SIZE : int
+    -mWarnOnBlocking : boolean
+    -mNativeData : long
+    -sTransactListener : Binder.ProxyTransactListener
+
+    +setTransactListener(listener : Binder.ProxyTransactListener) : void
+    +pingBinder() : boolean <<native>>
+    +isBinderAlive() : boolean <<native>>
+    +queryLocalInterface(descriptor : String) : IInterface
+    +transact(code : int, data : Parcel, reply : Parcel, flags : int) : boolean
+    +getNativeFinalizer() : long <<native>>
+    +getInterfaceDescriptor() : String <<native>>
+    +transactNative(code : int, data : Parcel, reply : Parcel, flags : int) : boolean <<native>>
+    +linkToDeath(recipient : DeathRecipient, flags : int) : void <<native>>
+    +unlinkToDeath(recipient : DeathRecipient, flags : int) : boolean <<native>>
+    +dump(fd : FileDescriptor, args : String[]) : void
+    +dumpAsync(fd : FileDescriptor, args : String[]) : void
+    +shellCommand(in : FileDescriptor, out : FileDescriptor, err : FileDescriptor, args : String[], callback : ShellCallback, resultReceiver : ResultReceiver) : void
+    +sendDeathNotice(recipient : DeathRecipient) : void
+}
+
+
+@enduml

@@ -1,0 +1,7 @@
+java_library {
+      name: "JavaCallNativeService",
+      installable: true,
+      srcs: ["com/ferdinand/JavaClient.java",
+             "com/ferdinand/IHello.java"
+      ]
+}

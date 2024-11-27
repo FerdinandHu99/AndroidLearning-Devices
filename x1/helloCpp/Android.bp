@@ -1,0 +1,5 @@
+cc_binary {
+    name: "helloCpp",
+    srcs: ["helloCpp.cpp"],
+    product_specific: true
+}

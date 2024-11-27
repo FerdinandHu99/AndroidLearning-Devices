@@ -1,0 +1,220 @@
+@startuml
+class IInterface {
+  +IInterface()
+  +asBinder(iinterface: IInterface): sp<IBinder>
+  +asBinder(iinterface: sp<IInterface>): sp<IBinder>
+  -~IInterface()
+  -onAsBinder(): IBinder*
+}
+
+class IHelloServer {
+  +hello(): binder::Status
+  +sum(v1: int32_t, v2: int32_t, _aidl_return: int32_t*): binder::Status
+}
+
+class IHello {
+  + Status hello()
+  + Status sum(x: int32, y: int32, _aidl_return: int32*)
+}
+
+class IHelloDefault {
+  + IBinder* onAsBinder()
+  + Status hello()
+  + Status sum(x: int32, y: int32, _aidl_return: int32*)
+}
+
+class BpHello {
+  + BpHello(_aidl_impl: sp<IBinder>)
+  + ~BpHello()
+  + binder::Status hello()
+  + binder::Status sum(x: int32, y: int32, _aidl_return: int32*)
+}
+
+class BnHello {
+  + onTransact(_aidl_code: uint32, _aidl_data: Parcel, _aidl_reply: Parcel*, _aidl_flags: uint32): status_t
+}
+
+interface BpInterface {
+  + BpInterface(remote: sp<IBinder>)
+  - onAsBinder(): IBinder*
+}
+
+class BnInterface {
+  + queryLocalInterface(_descriptor: String16): sp<IInterface>
+  + getInterfaceDescriptor(): const String16&
+  - onAsBinder(): IBinder*
+}
+
+class BpRefBase {
+  # BpRefBase(const sp<IBinder>& o)
+  # ~BpRefBase()
+  # void onFirstRef()
+  # void onLastStrongRef(const void* id)
+  # bool onIncStrongAttempted(uint32_t flags, const void* id)
+  # IBinder* remote()
+  # IBinder* remote() const
+  - BpRefBase(const BpRefBase& o)
+  - BpRefBase& operator=(const BpRefBase& o)
+  - IBinder* const mRemote
+  - RefBase::weakref_type* mRefs
+  - std::atomic<int32_t> mState
+}
+
+class BBinder {
+  + BBinder()
+  + getInterfaceDescriptor(): const String16&
+  + isBinderAlive(): bool
+  + pingBinder(): status_t
+  + dump(fd: int, args: Vector<String16>): status_t
+  + transact(code: uint32, data: Parcel, reply: Parcel*, flags: uint32 = 0): status_t
+  + linkToDeath(recipient: sp<DeathRecipient>, cookie: void* = nullptr, flags: uint32 = 0): status_t
+  + unlinkToDeath(recipient: wp<DeathRecipient>, cookie: void* = nullptr, flags: uint32 = 0, outRecipient: wp<DeathRecipient>* = nullptr): status_t
+  + attachObject(objectID: const void*, object: void*, cleanupCookie: void*, func: object_cleanup_func)
+  + findObject(objectID: const void*): void*
+  + detachObject(objectID: const void*)
+  + localBinder(): BBinder*
+  + isRequestingSid(): bool
+  + setRequestingSid(requestSid: bool)
+  - ~BBinder()
+  - onTransact(code: uint32, data: Parcel, reply: Parcel*, flags: uint32 = 0): status_t
+}
+
+enum IBinder_Transaction {
+  FIRST_CALL_TRANSACTION : uint32 = 0x00000001
+  LAST_CALL_TRANSACTION : uint32 = 0x00ffffff
+  PING_TRANSACTION : uint32 = B_PACK_CHARS('_','P','N','G')
+  DUMP_TRANSACTION : uint32 = B_PACK_CHARS('_','D','M','P')
+  SHELL_COMMAND_TRANSACTION : uint32 = B_PACK_CHARS('_','C','M','D')
+  INTERFACE_TRANSACTION : uint32 = B_PACK_CHARS('_', 'N', 'T', 'F')
+  SYSPROPS_TRANSACTION : uint32 = B_PACK_CHARS('_', 'S', 'P', 'R')
+  FLAG_ONEWAY : uint32 = 0x00000001
+}
+
+class IBinder {
+  +queryLocalInterface(descriptor: String16): sp<IInterface>
+  +getInterfaceDescriptor(): String16
+  +isBinderAlive(): bool
+  +pingBinder(): status_t
+  +dump(fd: int, args: Vector<String16>): status_t
+  +shellCommand(target: sp<IBinder>, in: int, out: int, err: int, args: Vector<String16>, callback: sp<IShellCallback>, resultReceiver: sp<IResultReceiver>): status_t
+  +transact(code: uint32, data: Parcel, reply: Parcel, flags: uint32): status_t
+  +linkToDeath(recipient: sp<DeathRecipient>, cookie: void*, flags: uint32): status_t
+  +unlinkToDeath(recipient: wp<DeathRecipient>, cookie: void*, flags: uint32, outRecipient: wp<DeathRecipient>): status_t
+  +checkSubclass(subclassID: void*): bool
+  +attachObject(objectID: void*, object: void*, cleanupCookie: void*, func: object_cleanup_func): void
+  +findObject(objectID: void*): void*
+  +detachObject(objectID: void*): void
+  +localBinder(): BBinder
+  +remoteBinder(): BpBinder
+}
+
+class IServiceManager {
+  ' +{static} DUMP_FLAG_PRIORITY_CRITICAL: int = 1 << 0
+  ' +{static} DUMP_FLAG_PRIORITY_HIGH: int = 1 << 1
+  ' +{static} DUMP_FLAG_PRIORITY_NORMAL: int = 1 << 2
+  ' +{static} DUMP_FLAG_PRIORITY_DEFAULT: int = 1 << 3
+  ' +{static} DUMP_FLAG_PRIORITY_ALL: int = DUMP_FLAG_PRIORITY_CRITICAL | DUMP_FLAG_PRIORITY_HIGH | DUMP_FLAG_PRIORITY_NORMAL | DUMP_FLAG_PRIORITY_DEFAULT
+  ' +{static} DUMP_FLAG_PROTO: int = 1 << 4
+
+  +{abstract} getService(name: String16): sp<IBinder> <<pure virtual>>
+  +{abstract} checkService(name: String16): sp<IBinder> <<pure virtual>>
+  +{abstract} addService(name: String16, service: sp<IBinder>, allowIsolated: bool, dumpsysFlags: int): status_t <<pure virtual>>
+  +{abstract} listServices(dumpsysFlags: int): Vector<String16> <<pure virtual>>
+
+  +{static} GET_SERVICE_TRANSACTION: int
+  +{static} CHECK_SERVICE_TRANSACTION: int
+  +{static} ADD_SERVICE_TRANSACTION: int
+  +{static} LIST_SERVICES_TRANSACTION: int
+}
+
+class BpServiceManager {
+  +BpServiceManager(impl: sp<IBinder>) 
+  +{abstract} getService(name: String16): sp<IBinder>
+  +{abstract} checkService(name: String16): sp<IBinder>
+  +{abstract} addService(name: String16, service: sp<IBinder>, allowIsolated: bool, dumpsysPriority: int): status_t
+  +{abstract} listServices(dumpsysPriority: int): Vector<String16>
+}
+
+class BpBinder {
+    - int32_t mHandle
+    - Mutex mLock
+    - volatile int32_t mAlive
+    - volatile int32_t mObitsSent
+    - Vector<Obituary>* mObituaries
+    - ObjectManager mObjects
+    - Parcel* mConstantData
+    - mutable String16 mDescriptorCache
+    - int32_t mTrackedUid
+    - static Mutex sTrackingLock
+    - static unordered_map<int32_t, uint32_t> sTrackingMap
+    - static int sNumTrackedUids
+    - static atomic_bool sCountByUidEnabled
+    - static binder_proxy_limit_callback sLimitCallback
+    - static uint32_t sBinderProxyCountHighWatermark
+    - static uint32_t sBinderProxyCountLowWatermark
+    - static bool sBinderProxyThrottleCreate
+
+    + static BpBinder* create(int32_t handle)
+    + int32_t handle() const
+    + const String16& getInterfaceDescriptor() const
+    + bool isBinderAlive() const
+    + status_t pingBinder()
+    + status_t dump(int fd, const Vector<String16>& args)
+    + status_t transact(uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags = 0)
+    + status_t linkToDeath(const sp<DeathRecipient>& recipient, void* cookie = nullptr, uint32_t flags = 0)
+    + status_t unlinkToDeath(const wp<DeathRecipient>& recipient, void* cookie = nullptr, uint32_t flags = 0, wp<DeathRecipient>* outRecipient = nullptr)
+    + void attachObject(const void* objectID, void* object, void* cleanupCookie, object_cleanup_func func)
+    + void* findObject(const void* objectID) const
+    + void detachObject(const void* objectID)
+    + BpBinder* remoteBinder()
+    + status_t setConstantData(const void* data, size_t size)
+    + void sendObituary()
+    + static uint32_t getBinderProxyCount(uint32_t uid)
+    + static void getCountByUid(Vector<uint32_t>& uids, Vector<uint32_t>& counts)
+    + static void enableCountByUid()
+    + static void disableCountByUid()
+    + static void setCountByUidEnabled(bool enable)
+    + static void setLimitCallback(binder_proxy_limit_callback cb)
+    + static void setBinderProxyCountWatermarks(int high, int low)
+    + void reportOneDeath(const Obituary& obit)
+    + bool isDescriptorCached() const
+}
+
+class ObjectManager {
+    + ObjectManager()
+    + ~ObjectManager()
+    + void attach(const void* objectID, void* object, void* cleanupCookie, IBinder::object_cleanup_func func)
+    + void* find(const void* objectID) const
+    + void detach(const void* objectID)
+    + void kill()
+    - KeyedVector<const void*, entry_t> mObjects
+}
+
+class Obituary {
+    + wp<DeathRecipient> recipient
+    + void* cookie
+    + uint32_t flags
+}
+ObjectManager <-- BpBinder : owns
+Obituary <-- BpBinder : uses
+IBinder <|-- BpBinder : public
+BpServiceManager o-- BpBinder : construct func
+
+IServiceManager <|-- BpInterface : public
+BpInterface <|-- BpServiceManager : public
+IInterface <|-- IServiceManager : public
+BnHello <|-- IHelloServer : public
+IHello <|-- IHelloDefault : public
+IInterface <|-- IHello : public
+RefBase <|-- IInterface : public virtual
+BpInterface <|-- BpHello : public
+BpRefBase <|-- BpInterface : public
+RefBase <|-- BpRefBase : public virtual
+IHello <|-- BpInterface : public
+BnInterface <|-- BnHello : public
+IHello <|-- BnInterface : public
+BBinder <|-- BnInterface : public
+IBinder <|-- BBinder : public
+RefBase <|-- IBinder : public virtual 
+IBinder_Transaction o-- IBinder : Composition 
+@enduml
