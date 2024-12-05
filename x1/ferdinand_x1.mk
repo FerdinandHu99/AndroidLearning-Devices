@@ -61,12 +61,14 @@ PRODUCT_PACKAGES +=  helloCpp \
                      FirstSystemApp \
                      HelloServer \
                      HelloClient \
+                     FirstSystemApp \
                     
 
 PRODUCT_ARTIFACT_PATH_REQUIREMENT_WHITELIST += \
     system/bin/HelloServer \
     system/bin/HelloClient \
     system/etc/init/HelloServer.rc \
+    system/app/FirstSystemApp/FirstSystemApp.apk \
 
 PRODUCT_NAME := ferdinand_x1
 PRODUCT_DEVICE := generic_x86_64

@@ -3,7 +3,9 @@ java_library {
     installable: true,
     srcs: [ "Client.java", 
             "HelloService.java", 
-            "IHelloService.java" ],
+            "IHelloService.java",
+            "ICallback.java",
+            "Book.java" ],
 }
 
 java_library {
@@ -11,5 +13,7 @@ java_library {
     installable: true,
     srcs: [ "Server.java", 
             "HelloService.java", 
-            "IHelloService.java" ],
+            "IHelloService.java",
+            "ICallback.java",
+            "Book.java" ],
 }

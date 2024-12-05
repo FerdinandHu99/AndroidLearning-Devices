@@ -1,0 +1,17 @@
+java_library {
+      name: "BinderTypeClient",
+      installable: true,
+      srcs: [ "Client.java", 
+              "HelloService.java", 
+              "IHelloService.java",
+              "Student.java"],
+}
+
+java_library {
+      name: "BinderTypeServer",
+      installable: true,
+      srcs: [ "Server.java", 
+              "HelloService.java",
+              "IHelloService.java", 
+              "Student.java"],
+}

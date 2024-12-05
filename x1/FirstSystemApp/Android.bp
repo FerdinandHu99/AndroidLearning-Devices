@@ -6,7 +6,7 @@ android_app {
     platform_apis: true, 
     sdk_version: "",
     certificate: "platform",
-    product_specific: true,
+    // product_specific: true,
 
     static_libs: [ 
         "androidx.appcompat_appcompat",
